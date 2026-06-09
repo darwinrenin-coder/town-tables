@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Town Tables — N.R. Pura | 8D Spatial Experience</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --onyx: #0A0A0B;
+    --charcoal: #121212;
+    --surface: #1A1A1B;
+    --surface-2: #222223;
+    --bronze: #C99341;
+    --bronze-dim: rgba(201,147,65,0.18);
+    --gold: #FAB017;
+    --gold-dim: rgba(250,176,23,0.12);
+    --text-primary: #F2EDE4;
+    --text-secondary: #9E9A91;
+    --text-muted: #5A5752;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--onyx);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* 8D SPATIAL BACKGROUND GLOWS (pulsing, slow-moving) */
+  .ambient-glow-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  .glow-1 {
+    background: radial-gradient(circle at 30% 40%, rgba(201,147,65,0.08), transparent 70%);
+    animation: slowDrift 22s infinite alternate ease-in-out;
+  }
+  .glow-2 {
+    background: radial-gradient(ellipse at 70% 80%, rgba(250,176,23,0.05), transparent 60%);
+    animation: slowDriftReverse 28s infinite alternate ease-in-out;
+  }
+  .glow-3 {
+    background: radial-gradient(circle at 20% 60%, rgba(201,147,65,0.04), transparent 55%);
+    animation: pulseGlowSoft 14s infinite alternate;
+  }
+  @keyframes slowDrift {
+    0% { transform: translate(-5%, -5%) scale(1); opacity: 0.7; }
+    100% { transform: translate(8%, 6%) scale(1.3); opacity: 1; }
+  }
+  @keyframes slowDriftReverse {
+    0% { transform: translate(4%, 2%) scale(1); opacity: 0.6; }
+    100% { transform: translate(-6%, -8%) scale(1.4); opacity: 1; }
+  }
+  @keyframes pulseGlowSoft {
+    0% { opacity: 0.4; transform: scale(0.9);}
+    100% { opacity: 0.9; transform: scale(1.2);}
+  }
+
+  /* --- MAIN LAYER --- */
+  .main-content {
+    position: relative;
+    z-index: 2;
+    background: transparent;
+  }
+
+  /* NAV (keep same) */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 clamp(1.25rem, 5vw, 3rem);
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,11,0.92), transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid rgba(201,147,65,0.08);
+    transition: background 0.3s;
+  }
+  nav.scrolled { background: rgba(10,10,11,0.96); }
+
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    text-decoration: none;
+    line-height: 1;
+  }
+  .nav-logo span { color: var(--bronze); }
+
+  .nav-links { display: flex; gap: 1.75rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  .nav-cta {
+    background: var(--gold);
+    color: #0A0A0B;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.1rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+  }
+  .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    height: 100svh;
+    min-height: 600px;
+    display: flex; align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to top, var(--onyx) 0%, rgba(10,10,11,0.55) 40%, rgba(10,10,11,0.15) 80%, rgba(10,10,11,0.4) 100%),
+      url('public/assets/majlis_seating_hero.jpg') center/cover no-repeat;
+    transform: scale(1.08);
+    transition: transform 12s ease-out;
+    will-change: transform;
+  }
+  .hero-bg.loaded { transform: scale(1); }
+
+  .hero-ambient {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 30% 60%, rgba(201,147,65,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: clamp(2rem, 8vw, 5rem);
+    padding-bottom: clamp(3.5rem, 10vw, 6rem);
+    max-width: 780px;
+  }
+
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .hero-eyebrow-line {
+    width: 32px; height: 1px;
+    background: var(--bronze);
+    flex-shrink: 0;
+  }
+  .hero-eyebrow span {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bronze);
+    font-weight: 400;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 9vw, 6.5rem);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    margin-bottom: 0.15em;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--bronze);
+    font-weight: 300;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    color: var(--text-secondary);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex; flex-wrap: wrap; gap: 0.85rem;
+    align-items: center;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: #0A0A0B;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.75rem;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(250,176,23,0.3); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.5rem;
+    border: 0.5px solid rgba(242,237,228,0.2);
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--bronze); color: var(--bronze); }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    border: 0.5px solid transparent;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s;
+  }
+  .status-badge.open { background: rgba(20, 160, 80, 0.12); border-color: rgba(20, 160, 80, 0.3); color: #6ECF8B; }
+  .status-badge.closed { background: rgba(180, 60, 60, 0.1); border-color: rgba(180, 60, 60, 0.25); color: #D97272; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .status-badge.open .status-dot { background: #4CD472; box-shadow: 0 0 6px rgba(76,212,114,0.6); animation: pulse-green 2s infinite; }
+  .status-badge.closed .status-dot { background: #D97272; }
+  @keyframes pulse-green { 0%, 100% { box-shadow: 0 0 4px rgba(76,212,114,0.6); } 50% { box-shadow: 0 0 10px rgba(76,212,114,0.9); } }
+
+  section { padding: clamp(4rem, 10vw, 7rem) clamp(1.25rem, 6vw, 4rem); position: relative; }
+  .section-eyebrow { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .section-eyebrow-line { width: 24px; height: 1px; background: var(--bronze); flex-shrink: 0; }
+  .section-eyebrow span { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bronze); }
+  .section-title { font-family: var(--serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; line-height: 1.08; color: var(--text-primary); margin-bottom: 1.25rem; }
+  .section-title em { font-style: italic; color: var(--bronze); }
+  .section-body { font-size: 0.92rem; color: var(--text-secondary); max-width: 520px; line-height: 1.75; }
+
+  .divider { height: 0.5px; background: linear-gradient(to right, transparent, rgba(201,147,65,0.3), transparent); margin: 0 clamp(1.25rem, 6vw, 4rem); }
+
+  /* AMBIENCE GRID (same) */
+  .ambience-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 12px; margin-top: 3rem; }
+  .ambience-card { position: relative; overflow: hidden; border-radius: 3px; background: var(--surface); }
+  .ambience-card:first-child { grid-column: 1 / -1; aspect-ratio: 16/8; }
+  .ambience-card:not(:first-child) { aspect-ratio: 4/3; }
+  .ambience-card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; background: var(--surface-2); }
+  .ambience-card:hover .ambience-card-img { transform: scale(1.04); }
+  .ambience-card-label { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.25rem 1rem 0.85rem; background: linear-gradient(to top, rgba(10,10,11,0.85), transparent); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(242,237,228,0.7); }
+
+  /* signature grid, menu, etc */
+  .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); margin-top: 3.5rem; align-items: start; }
+  .signature-card { position: relative; padding: 2rem; border: 0.5px solid rgba(201,147,65,0.15); border-radius: 3px; background: var(--surface); overflow: hidden; transition: border-color 0.3s; }
+  .signature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, transparent, var(--bronze), transparent); transform: scaleX(0); transition: transform 0.4s; }
+  .signature-card:hover { border-color: rgba(201,147,65,0.4); }
+  .signature-card:hover::before { transform: scaleX(1); }
+  .sig-icon { font-size: 1.6rem; margin-bottom: 1rem; display: block; }
+  .sig-title { font-family: var(--serif); font-size: 1.6rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.5rem; line-height: 1.2; }
+  .sig-title em { font-style: italic; color: var(--bronze); }
+  .sig-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.25rem; }
+  .sig-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 2px; background: var(--surface-2); margin-top: 1.25rem; }
+
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; margin-top: 3rem; border: 0.5px solid rgba(201,147,65,0.1); border-radius: 3px; overflow: hidden; background: rgba(201,147,65,0.1); }
+  .menu-item { background: var(--surface); padding: 1.75rem; transition: background 0.2s; position: relative; }
+  .menu-item:hover { background: var(--surface-2); }
+  .menu-item-category { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bronze); margin-bottom: 0.5rem; }
+  .menu-item-name { font-family: var(--serif); font-size: 1.2rem; font-weight: 400; color: var(--text-primary); margin-bottom: 0.4rem; }
+  .menu-item-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.85rem; }
+  .menu-item-price { font-size: 0.8rem; font-weight: 500; color: var(--gold); letter-spacing: 0.06em; }
+
+  .cuisine-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2.5rem; }
+  .cuisine-tag { padding: 0.4rem 1rem; border: 0.5px solid rgba(201,147,65,0.25); border-radius: 100px; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bronze); background: var(--bronze-dim); white-space: nowrap; }
+
+  .info-strip { background: var(--surface); border-top: 0.5px solid rgba(201,147,65,0.1); border-bottom: 0.5px solid rgba(201,147,65,0.1); padding: 2.5rem clamp(1.25rem, 6vw, 4rem); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+
+  /* 3D Cards Duo (now trio) */
+  .cards-duo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .tilt-card-wrapper {
+    perspective: 800px;
+    cursor: pointer;
+    width: min(340px, 100%);
+    flex: 1 1 280px;
+  }
+  .tilt-card {
+    position: relative;
+    padding: 2rem 2rem;
+    background: rgba(26,26,27,0.7);
+    border: 0.5px solid rgba(201,147,65,0.25);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out, box-shadow 0.3s;
+    box-shadow: 0 0 0 0.5px rgba(201,147,65,0.12), 0 8px 48px rgba(0,0,0,0.6), inset 0 0.5px 0 rgba(255,255,255,0.06);
+    text-decoration: none;
+    display: block;
+    animation: float-card 4s ease-in-out infinite;
+  }
+  @keyframes float-card { 0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); } 50% { transform: translateY(-6px) rotateX(1deg) rotateY(0.5deg); } }
+  .tilt-card:hover { animation: none; }
+  .card-shimmer { position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, rgba(250,176,23,0.5), transparent); border-radius: 16px 16px 0 0; }
+  .card-header { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.25rem; }
+  .card-avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%); }
+  .wa-avatar { background: linear-gradient(135deg, #075E54, #128C7E); }
+  .call-avatar { background: linear-gradient(135deg, #1e6f3f, #0f8b4c); }
+  .card-avatar svg { width: 22px; height: 22px; }
+  .card-name { font-family: var(--serif); font-size: 1.1rem; font-weight: 400; color: var(--text-primary); line-height: 1.2; }
+  .card-handle { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.15rem; }
+  .card-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 1.5rem; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .card-open-btn { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 0.4rem; }
+
+  /* Map Section */
+  .map-section { padding: 0 clamp(1.25rem, 6vw, 4rem) clamp(3rem, 8vw, 5rem); }
+  .map-card { position: relative; border: 0.5px solid rgba(201,147,65,0.15); border-radius: 4px; overflow: hidden; cursor: pointer; background: var(--surface); transition: border-color 0.3s, transform 0.2s; text-decoration: none; display: block; }
+  .map-card:hover { border-color: rgba(201,147,65,0.5); transform: translateY(-3px); }
+  .map-visual { height: clamp(200px, 40vw, 300px); background: #121212; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .map-grid-overlay { position: absolute; inset: 0; background-image: linear-gradient(rgba(201,147,65,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,147,65,0.04) 1px, transparent 1px); background-size: 40px 40px; }
+  .map-pin-wrapper { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; animation: pin-bob 2.5s ease-in-out infinite; }
+  @keyframes pin-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  .map-pin { width: 44px; height: 44px; background: var(--gold); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(250,176,23,0.4); margin-bottom: 4px; }
+  .map-pin-inner { width: 16px; height: 16px; background: var(--onyx); border-radius: 50%; transform: rotate(45deg); }
+  .map-pin-shadow { width: 18px; height: 6px; background: rgba(0,0,0,0.4); border-radius: 50%; filter: blur(3px); }
+  .map-info-bar { padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; background: var(--surface); border-top: 0.5px solid rgba(201,147,65,0.1); }
+  .map-address { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+  .map-address strong { display: block; font-size: 0.88rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.2rem; }
+  .map-nav-btn { flex-shrink: 0; background: var(--gold); color: #0A0A0B; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.55rem 1rem; border-radius: 2px; display: flex; align-items: center; gap: 0.4rem; transition: opacity 0.2s; }
+
+  footer { background: var(--onyx); border-top: 0.5px solid rgba(201,147,65,0.1); padding: 2.5rem clamp(1.25rem, 6vw, 4rem); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem; }
+  .footer-brand { font-family: var(--serif); font-size: 1rem; color: var(--text-secondary); }
+  .footer-brand strong { color: var(--text-primary); font-weight: 400; }
+  .footer-note { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.08em; }
+
+  /* Scroll Reveal */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* fix chicken image */
+  .chicken-img-fix { width: 100%; height: auto; max-width: 680px; object-fit: contain; border-radius: 3px; background: var(--surface-2); border: 0.5px solid rgba(201,147,65,0.1); display: block; margin: 0 auto; }
+
+  .parallax-strip { position: relative; height: clamp(180px, 35vw, 280px); overflow: hidden; }
+  .parallax-img { position: absolute; inset: -20%; background: url('public/assets/interior_corridor.jpg') center/cover no-repeat; transition: transform 0s linear; will-change: transform; }
+  .parallax-overlay { position: absolute; inset: 0; background: rgba(10,10,11,0.65); display: flex; align-items: center; justify-content: center; }
+  .parallax-text { font-family: var(--serif); font-size: clamp(1.2rem, 4vw, 2.2rem); font-weight: 300; font-style: italic; color: rgba(242,237,228,0.75); text-align: center; }
+
+  @media (max-width: 860px) {
+    .cards-duo { gap: 1.5rem; }
+    .tilt-card-wrapper { min-width: 260px; }
+  }
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .signature-grid { grid-template-columns: 1fr; }
+    .ambience-grid { grid-template-columns: 1fr; }
+    .cards-duo { flex-direction: column; align-items: center; }
+    .hero-actions { flex-wrap: wrap; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hero-bg, .reveal, .tilt-card, .map-pin-wrapper { transition: none; animation: none; } }
+</style>
+</head>
+<body>
+<div class="ambient-glow-layer glow-1"></div>
+<div class="ambient-glow-layer glow-2"></div>
+<div class="ambient-glow-layer glow-3"></div>
+<div class="main-content">
+
+<nav id="main-nav">
+  <a href="#" class="nav-logo">Town<span>&nbsp;Tables</span></a>
+  <ul class="nav-links"><li><a href="#ambience">Ambience</a></li><li><a href="#signature">Signature</a></li><li><a href="#menu">Menu</a></li><li><a href="#find-us">Find Us</a></li></ul>
+  <a href="tel:+916366773344" class="nav-cta">Call to Book</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-ambient"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow"><div class="hero-eyebrow-line"></div><span>Narasimharajapura &nbsp;·&nbsp; Chikkamagaluru</span></div>
+    <h1 class="hero-title">Town<br/><em>Tables</em></h1>
+    <p class="hero-subtitle">Indian &nbsp;·&nbsp; Arabian &nbsp;·&nbsp; Chinese</p>
+    <div style="margin-bottom: 1.75rem;"><span class="status-badge" id="status-badge"><span class="status-dot"></span><span id="status-text">Checking hours...</span></span></div>
+    <div class="hero-actions">
+      <a href="https://wa.me/916366773344?text=Hello%2C%20I%27d%20like%20to%20make%20a%20reservation%20at%20Town%20Tables." target="_blank" rel="noopener" class="btn-primary">📱 WhatsApp Inquiry</a>
+      <a href="https://www.instagram.com/towntables_n.r.pura" target="_blank" rel="noopener" class="btn-primary">📸 Instagram</a>
+      <a href="tel:+916366773344" class="btn-ghost">+91 63667 73344</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+<div class="info-strip">
+  <div class="info-item reveal"><div class="info-label">Hours</div><div class="info-value">12:00 PM &ndash; 10:00 PM daily</div></div>
+  <div class="info-item reveal reveal-delay-1"><div class="info-label">Location</div><div class="info-value">Rosy Ouseph Building,<br/>Opp. Deepthi School, N.R. Pura</div></div>
+  <div class="info-item reveal reveal-delay-2"><div class="info-label">Reservations</div><div class="info-value"><a href="tel:+916366773344">+91 63667 73344</a></div></div>
+  <div class="info-item reveal reveal-delay-3"><div class="info-label">Signature Feature</div><div class="info-value">Exclusive Majlis Seating</div></div>
+</div>
+
+<section id="ambience">
+  <div class="section-eyebrow reveal"><div class="section-eyebrow-line"></div><span>The Space</span></div>
+  <h2 class="section-title reveal reveal-delay-1">Designed for<br/><em>atmosphere</em></h2>
+  <p class="section-body reveal reveal-delay-2">Four distinct environments within one address: a grand dining hall, intimate leather booth alcoves, a traditional Majlis floor seating area, and the open-fire theatre of the Tandoor station.</p>
+  <div class="ambience-grid">
+    <div class="ambience-card reveal"><img class="ambience-card-img" src="public/assets/main_dining_hall.jpg" alt="Main dining hall" loading="lazy"><div class="ambience-card-label">Main Dining Hall</div></div>
+    <div class="ambience-card reveal reveal-delay-1"><img class="ambience-card-img" src="public/assets/leather_booth_alcove.jpg" alt="Leather booth" loading="lazy"><div class="ambience-card-label">Booth Alcoves</div></div>
+    <div class="ambience-card reveal reveal-delay-2"><img class="ambience-card-img" src="public/assets/storefront_balloons.jpg" alt="Grand opening" loading="lazy"><div class="ambience-card-label">Grand Opening</div></div>
+  </div>
+</section>
+
+<div class="parallax-strip" id="parallax-strip"><div class="parallax-img" id="parallax-img"></div><div class="parallax-overlay"><p class="parallax-text">Where every meal is a moment worth sitting down for.</p></div></div>
+
+<section id="signature">
+  <div class="section-eyebrow reveal"><div class="section-eyebrow-line"></div><span>Signature Experiences</span></div>
+  <h2 class="section-title reveal reveal-delay-1">Two <em>defining</em><br/>offerings</h2>
+  <div class="signature-grid">
+    <div class="signature-card reveal reveal-delay-1"><span class="sig-icon">🕌</span><h3 class="sig-title">Exclusive <em>Majlis</em><br/>Seating</h3><p class="sig-body">A dedicated Majlis room with traditional low-floor seating, cushioned bolsters, and a warm ambient glow. Reserved for groups. Prior booking recommended.</p><img class="sig-img" src="public/assets/majlis_seating_hero.jpg" alt="Majlis"><div style="margin-top:1.25rem"><a href="https://wa.me/916366773344?text=I'd%20like%20to%20book%20the%20Majlis%20seating." target="_blank" rel="noopener" class="btn-ghost" style="font-size:0.75rem">Book Majlis</a></div></div>
+    <div class="signature-card reveal reveal-delay-2"><span class="sig-icon">🔥</span><h3 class="sig-title">The <em>Tandoor</em><br/>Experience</h3><p class="sig-body">Marinated proteins slow-charred in a clay Tandoor oven. Each platter arrives with blistered naan, rich gravies, and house-ground spices.</p><img class="sig-img" src="public/assets/tandoori_platter.jpg" alt="Tandoori platter"><div style="margin-top:1.25rem"><a href="tel:+916366773344" class="btn-ghost" style="font-size:0.75rem">Reserve a Table</a></div></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<section id="menu">
+  <div class="section-eyebrow reveal"><div class="section-eyebrow-line"></div><span>The Menu</span></div>
+  <h2 class="section-title reveal reveal-delay-1">Dishes worth<br/><em>returning for</em></h2>
+  <p class="section-body reveal reveal-delay-2">A kitchen that spans three culinary traditions without diluting any of them.</p>
+  <div class="cuisine-tags reveal reveal-delay-3"><span class="cuisine-tag">Indian</span><span class="cuisine-tag">Arabian</span><span class="cuisine-tag">Chinese</span><span class="cuisine-tag">Tandoor</span><span class="cuisine-tag">Naan Breads</span><span class="cuisine-tag">Gravies</span></div>
+  <div class="menu-grid reveal"><div class="menu-item"><div class="menu-item-category">Tandoor Signature</div><div class="menu-item-name">Tandoori Chicken</div><div class="menu-item-desc">Whole leg marinated in hung curd, ginger-garlic. Charred in clay oven, served with mint chutney.</div><div class="menu-item-price">Available on request</div></div><div class="menu-item"><div class="menu-item-category">Breads from the Tandoor</div><div class="menu-item-name">Butter Naan</div><div class="menu-item-desc">Hand-stretched dough slapped onto the inner wall of the Tandoor. Pulls off charred, chewy, brushed with butter.</div><div class="menu-item-price">Available on request</div></div><div class="menu-item"><div class="menu-item-category">Slow Gravies</div><div class="menu-item-name">Chicken Stew</div><div class="menu-item-desc">Kerala-style coconut milk broth with whole spices, curry leaves, bone-in chicken.</div><div class="menu-item-price">Available on request</div></div><div class="menu-item"><div class="menu-item-category">Arabian</div><div class="menu-item-name">Majlis Special</div><div class="menu-item-desc">Chef's selection served in the traditional Majlis setting.</div><div class="menu-item-price">Ask at the table</div></div><div class="menu-item"><div class="menu-item-category">Chinese</div><div class="menu-item-name">Wok Preparations</div><div class="menu-item-desc">Indo-Chinese preparations, noodles, fried rice, dry stir-fry options available daily.</div><div class="menu-item-price">Available on request</div></div><div class="menu-item"><div class="menu-item-category">Inquiry</div><div class="menu-item-name">Full Menu</div><div class="menu-item-desc">For complete menu and pricing, reach out directly. Our kitchen adapts to dietary requirements.</div><div class="menu-item-price"><a href="https://wa.me/916366773344?text=Can%20you%20share%20the%20full%20menu%3F" target="_blank" style="color: var(--gold);">WhatsApp us →</a></div></div></div>
+  <div style="margin-top: 2.5rem; text-align: center;"><img src="public/assets/chicken_stew_naan.jpg" alt="Chicken stew naan" class="chicken-img-fix reveal" loading="lazy"></div>
+</section>
+
+<!-- 3D CARDS: INSTAGRAM + WHATSAPP + PHONE CALL (Trio) -->
+<section class="insta-section" aria-label="Connect with us">
+  <div class="cards-duo">
+    <!-- Instagram Card -->
+    <div class="tilt-card-wrapper" data-tilt>
+      <a class="tilt-card" href="https://www.instagram.com/towntables_n.r.pura" target="_blank" rel="noopener">
+        <div class="card-shimmer"></div>
+        <div class="card-header"><div class="card-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="5"></circle><circle cx="17.5" cy="6.5" r="1.2" fill="white" stroke="none"></circle></svg></div><div><div class="card-name">Town Tables</div><div class="card-handle">@towntables_n.r.pura</div></div></div>
+        <p class="card-body">Behind-the-scenes from the kitchen, glimpses of the Majlis room, and daily specials. Follow for updates from N.R. Pura.</p>
+        <div class="card-footer"><div class="card-open-btn">Open Instagram <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 10L10 2M10 2H4M10 2v6"/></svg></div><div style="font-size:0.68rem; color:var(--text-muted)">Follow</div></div>
+      </a>
+    </div>
+    <!-- WhatsApp Card -->
+    <div class="tilt-card-wrapper" data-tilt>
+      <a class="tilt-card" href="https://wa.me/916366773344?text=Hello%2C%20I%27d%20like%20to%20make%20a%20reservation%20at%20Town%20Tables." target="_blank" rel="noopener">
+        <div class="card-shimmer"></div>
+        <div class="card-header"><div class="card-avatar wa-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M2.5 21.5L4.7 17.3C3.1 15.2 2.5 12.9 2.5 10.5 2.5 5.8 6.3 2 11 2s8.5 3.8 8.5 8.5-3.8 8.5-8.5 8.5c-1.4 0-2.8-.3-4-.9L2.5 21.5z"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="16" cy="10" r="1"/></svg></div><div><div class="card-name">Town Tables</div><div class="card-handle">WhatsApp Chat</div></div></div>
+        <p class="card-body">Reserve a table instantly, ask about the Majlis room, menu, daily specials. We respond quickly and look forward to welcoming you.</p>
+        <div class="card-footer"><div class="card-open-btn">Start Chat →</div><div style="font-size:0.68rem; color:var(--text-muted)">24/7 Inquiry</div></div>
+      </a>
+    </div>
+    <!-- Phone Call Card (New 3D) -->
+    <div class="tilt-card-wrapper" data-tilt>
+      <a class="tilt-card" href="tel:+916366773344">
+        <div class="card-shimmer"></div>
+        <div class="card-header"><div class="card-avatar call-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><div class="card-name">Town Tables</div><div class="card-handle">Call Directly</div></div></div>
+        <p class="card-body">Speak with our host. Book a table, inquire about Majlis availability or any special requests. We're here 12 PM–10 PM.</p>
+        <div class="card-footer"><div class="card-open-btn">Call +91 63667 73344 →</div><div style="font-size:0.68rem; color:var(--text-muted)">Quick Connect</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="map-section" id="find-us">
+  <div class="section-eyebrow reveal"><div class="section-eyebrow-line"></div><span>Find Us</span></div>
+  <h2 class="section-title reveal reveal-delay-1">Get <em>directions</em></h2>
+  <!-- Updated Google Maps link -->
+  <a class="map-card reveal" href="https://maps.app.goo.gl/cTR7iTgPMVr8xdmG7" target="_blank" rel="noopener noreferrer">
+    <div class="map-visual"><div class="map-grid-overlay"></div><svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.18;"><line x1="0" y1="60%" x2="100%" y2="60%" stroke="#C99341" stroke-width="1.5"/><line x1="0" y1="40%" x2="100%" y2="40%" stroke="#C99341" stroke-width="0.8"/><line x1="35%" y1="0" x2="35%" y2="100%" stroke="#C99341" stroke-width="1.5"/><line x1="65%" y1="0" x2="65%" y2="100%" stroke="#C99341" stroke-width="0.8"/></svg><div class="map-pin-wrapper"><div class="map-pin"><div class="map-pin-inner"></div></div><div class="map-pin-shadow"></div></div></div>
+    <div class="map-info-bar"><div class="map-address"><strong>Town Tables</strong> Rosy Ouseph Building, Opp. Deepthi School, Narasimharajapura</div><div class="map-nav-btn">Navigate <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 11.5L11.5 1.5M11.5 1.5H5M11.5 1.5V8"/></svg></div></div>
+  </a>
+</section>
+
+<footer><div class="footer-brand"><strong>Town Tables</strong> &nbsp;·&nbsp; N.R. Pura, Chikkamagaluru</div><div style="display:flex; gap:1.25rem;"><a href="tel:+916366773344" style="color:var(--text-muted); font-size:0.78rem;">+91 63667 73344</a><a href="https://wa.me/916366773344" target="_blank" style="color:var(--text-muted); font-size:0.78rem;">WhatsApp</a><a href="https://www.instagram.com/towntables_n.r.pura" target="_blank" style="color:var(--text-muted); font-size:0.78rem;">Instagram</a></div><div class="footer-note">Open 12 PM – 10 PM daily</div></footer>
+
+</div>
+
+<script>
+  (function(){
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', ()=> nav.classList.toggle('scrolled', window.scrollY > 60), {passive:true});
+    document.getElementById('hero-bg')?.classList.add('loaded');
+
+    // Open/Closed badge
+    function updateStatusBadge(){
+      const badge = document.getElementById('status-badge'), text = document.getElementById('status-text');
+      const now = new Date(), h=now.getHours(), m=now.getMinutes(), totalMins = h*60+m, openMins=12*60, closeMins=22*60;
+      const isOpen = totalMins>=openMins && totalMins<closeMins;
+      badge.className = 'status-badge '+(isOpen?'open':'closed');
+      if(isOpen){
+        const minsLeft=closeMins-totalMins;
+        text.textContent = minsLeft<=30?`Closing in ${minsLeft} min`:'Open Now';
+      } else {
+        text.textContent = totalMins<openMins?`Opens at 12:00 PM`:'Closed Right Now';
+      }
+    }
+    updateStatusBadge(); setInterval(updateStatusBadge,30000);
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}}),{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+    // Parallax
+    const paraImg=document.getElementById('parallax-img'), paraStrip=document.getElementById('parallax-strip');
+    if(paraImg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const updateParallax=()=>{
+        const rect=paraStrip.getBoundingClientRect();
+        if(rect.top<window.innerHeight && rect.bottom>0){
+          const progress=(window.innerHeight-rect.top)/(window.innerHeight+rect.height);
+          paraImg.style.transform=`translateY(${(progress-0.5)*60}px)`;
+        }
+      };
+      window.addEventListener('scroll',updateParallax,{passive:true}); updateParallax();
+    }
+
+    // 8D Tilt for all three cards
+    const tiltWrappers = document.querySelectorAll('.tilt-card-wrapper');
+    tiltWrappers.forEach(wrapper=>{
+      const card = wrapper.querySelector('.tilt-card');
+      if(!card || window.matchMedia('(pointer: coarse)').matches) return;
+      wrapper.addEventListener('mousemove',(e)=>{
+        const rect = card.getBoundingClientRect();
+        const cx = rect.left+rect.width/2, cy = rect.top+rect.height/2;
+        const dx = (e.clientX-cx)/(rect.width/2), dy = (e.clientY-cy)/(rect.height/2);
+        const rotX = -dy*7, rotY = dx*7;
+        card.style.animation = 'none';
+        card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(6px)`;
+        card.style.transition = 'transform 0.08s ease-out';
+      });
+      wrapper.addEventListener('mouseleave',()=>{
+        card.style.transition = 'transform 0.4s ease-out';
+        card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        setTimeout(()=>{ card.style.animation = ''; card.style.transform = ''; card.style.transition = ''; },400);
+      });
+    });
+  })();
+</script>
+</body>
+</html>
